@@ -23,3 +23,13 @@ export interface Survivor {
   };
   createdDate: string;
 }
+
+type InventoryType = {
+  item: string;
+  quantity: number;
+};
+export interface SurvivorsInventories {
+  id: number;
+  fullName: string;
+  inventory: InventoryType[];
+}

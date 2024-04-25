@@ -5,13 +5,23 @@ import { CircleAlert, ChevronDown, UserRound } from "lucide-react";
 
 import Modal from "../components/Modal";
 import { useSurvivors } from "../contexts/SurvivorsContext";
+import { SurvivorsInventories } from "../dataTypes";
 
 interface FormData {
   item: string;
 }
 
+interface SelectedSurvivor {
+  id: number;
+  fullName: string;
+  inventory: {
+    item: string;
+    quantity: number;
+  }[];
+}
+
 export default function Inventory() {
-  const { survivorsInventories } = useSurvivors();
+  const { survivorsInventories, updateRequestItem } = useSurvivors();
 
   const TABLE_HEAD = ["Name", "Inventories", "Action"];
   const TABLE_ROWS = [
@@ -47,11 +57,27 @@ export default function Inventory() {
   const [formData, setFormData] = useState<FormData>({
     item: "",
   });
+  const [selectedSurvivor, setSelectedSurvivor] = useState<
+    SelectedSurvivor | undefined
+  >();
 
   const closeModal = () => setIsModalOpen(false);
-  const handleAdd = (e: React.FormEvent<HTMLFormElement>) => {
+
+  const submitRequestItem = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("");
+    if (selectedSurvivor && formData.item) {
+      const currentSurvivor = selectedSurvivor;
+      currentSurvivor.inventory.map((item) => {
+        if (item.item === formData.item) {
+          return {
+            ...item,
+            quantity: item.quantity - 1,
+          };
+        }
+        return item;
+      });
+      updateRequestItem(currentSurvivor);
+    }
   };
 
   const handleChange = (
@@ -61,6 +87,11 @@ export default function Inventory() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleRequestItem = (survivor: SurvivorsInventories) => {
+    setSelectedSurvivor(survivor);
+    setIsModalOpen(true);
   };
 
   return (
@@ -100,25 +131,25 @@ export default function Inventory() {
             </thead>
             <tbody className="bg-white">
               {survivorsInventories.length ? (
-                survivorsInventories.map(({ fullName, inventory }, index) => {
+                survivorsInventories.map((survivor, index) => {
                   const isLast = index === TABLE_ROWS.length - 1;
                   const classes = isLast
                     ? "p-4"
                     : "p-4 border-b border-blue-gray-50";
 
                   return (
-                    <tr key={fullName + "-inventory-" + index}>
+                    <tr key={survivor.fullName + "-inventory-" + index}>
                       <td className={classes + " flex flex-row items-center"}>
                         <div className="bg-gray-icon flex flex-row items-center justify-center rounded-full w-10 h-10 mr-3">
                           <UserRound size="17" color="#A1A0A3" />
                         </div>
                         <p className="text-indigo-950 font-semibold">
-                          {fullName}
+                          {survivor.fullName}
                         </p>
                       </td>
                       <td className={classes}>
                         <p className="font-normal text-indigo-950">
-                          {inventory
+                          {survivor.inventory
                             .map((item) => item.quantity + " " + item.item)
                             .join(", ")}
                         </p>
@@ -126,7 +157,7 @@ export default function Inventory() {
                       <td className={classes}>
                         <button
                           type="button"
-                          onClick={() => setIsModalOpen(true)}
+                          onClick={() => handleRequestItem(survivor)}
                           className="mr-2 border border-gray-border bg-white hover:bg-gray-header text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-gray-500 focus:ring-opacity-50"
                         >
                           Request Item
@@ -159,43 +190,60 @@ export default function Inventory() {
           </div>
         </div>
       </div>
-      <Modal isOpen={isModalOpen} title="Request Item" onClose={closeModal}>
-        <div className="flex flex-col">
-          <form onSubmit={handleAdd}>
-            <div className="flex flex-col w-full mb-6">
-              <label htmlFor="status" className="text-gray-header-item text-xs">
-                Status
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={formData.item}
-                onChange={handleChange}
-                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-950 focus:border-indigo-950 text-gray-500 h-10"
-              >
-                <option value="">Select</option>
-                <option value="healthy">Healthy</option>
-                <option value="infected">Infected</option>
-              </select>
-            </div>
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="w-1/2 mr-2 border border-gray-border bg-white hover:bg-gray-header text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="w-1/2 bg-indigo-alt hover:bg-indigo-950 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              >
-                Request Item
-              </button>
-            </div>
-          </form>
-        </div>
-      </Modal>
+      {selectedSurvivor && (
+        <Modal
+          isOpen={isModalOpen}
+          title="Request Item"
+          subTitle={"From " + selectedSurvivor.fullName}
+          onClose={closeModal}
+        >
+          <div className="flex flex-col">
+            <form onSubmit={submitRequestItem}>
+              <div className="flex flex-col w-full mb-6">
+                <label
+                  htmlFor="status"
+                  className="text-gray-header-item text-xs"
+                >
+                  Choose Item
+                </label>
+                <select
+                  id="item"
+                  name="item"
+                  value={formData.item}
+                  onChange={handleChange}
+                  className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-950 focus:border-indigo-950 text-gray-500 h-10"
+                >
+                  <option value="">Select</option>
+                  {selectedSurvivor.inventory.map((inventory) => {
+                    return (
+                      inventory.quantity > 0 && (
+                        <option value={inventory.item}>
+                          {inventory.item} - {inventory.quantity}
+                        </option>
+                      )
+                    );
+                  })}
+                </select>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="w-1/2 mr-2 border border-gray-border bg-white hover:bg-gray-header text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="w-1/2 bg-indigo-alt hover:bg-indigo-950 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                >
+                  Request Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+      )}
     </section>
   );
 }

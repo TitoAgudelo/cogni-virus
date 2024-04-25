@@ -1,11 +1,18 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Survivor, Gender, Infected } from "../dataTypes";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { Survivor, Gender, Infected, SurvivorsInventories } from "../dataTypes";
 
 interface SurvivorsContextType {
   survivors: Survivor[];
   addSurvivor: (survivor: Survivor) => void;
+  updateRequestItem: (inventory: SurvivorsInventories) => void;
   numberOfHealthySurvivors: number;
   numberOfInfectedSurvivors: number;
   averageResourceAllocation: {
@@ -14,13 +21,7 @@ interface SurvivorsContextType {
     medication: number;
     cVirusVaccine: number;
   };
-  survivorsInventories: {
-    fullName: string;
-    inventory: {
-      item: string;
-      quantity: number;
-    }[];
-  }[];
+  survivorsInventories: SurvivorsInventories[];
 }
 
 const survivorList = [
@@ -104,6 +105,7 @@ const survivorList = [
 const SurvivorsContext = createContext<SurvivorsContextType>({
   survivors: [],
   addSurvivor: () => {},
+  updateRequestItem: () => {},
   numberOfHealthySurvivors: 0,
   numberOfInfectedSurvivors: 0,
   averageResourceAllocation: {
@@ -122,11 +124,12 @@ export const SurvivorsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [survivors, setSurvivors] = useState<Survivor[]>(survivorList);
   const [survivorsInventories, setSurvivorsInventories] = useState<
-    {
-      fullName: string;
-      inventory: { item: string; quantity: number }[];
-    }[]
+    SurvivorsInventories[] | []
   >([]);
+
+  useEffect(() => {
+    updateSurvivorsInventories(survivorList);
+  }, []);
 
   const addSurvivor = (survivor: Survivor) => {
     setSurvivors([...survivors, survivor]);
@@ -135,12 +138,21 @@ export const SurvivorsProvider: React.FC<{ children: ReactNode }> = ({
 
   const updateSurvivorsInventories = (updatedSurvivors: Survivor[]) => {
     const updatedInventories = updatedSurvivors.map((survivor) => ({
+      id: survivor.id,
       fullName: survivor.fullName,
       inventory: Object.entries(survivor.resources).map(([item, quantity]) => ({
         item,
         quantity,
       })),
     }));
+    setSurvivorsInventories(updatedInventories);
+  };
+
+  const updateRequestItem = (inventory: SurvivorsInventories) => {
+    const updatedInventories = survivorsInventories.map((item) =>
+      item.id === inventory.id ? inventory : item
+    );
+
     setSurvivorsInventories(updatedInventories);
   };
 
@@ -170,6 +182,7 @@ export const SurvivorsProvider: React.FC<{ children: ReactNode }> = ({
       value={{
         survivors,
         addSurvivor,
+        updateRequestItem,
         numberOfHealthySurvivors,
         numberOfInfectedSurvivors,
         averageResourceAllocation,

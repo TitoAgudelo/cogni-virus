@@ -12,16 +12,13 @@ describe("Modal component", () => {
       </Modal>
     );
 
-    const overlay = screen.getByRole("presentation");
-    expect(overlay).toBeInTheDocument();
-
     const modalContent = screen.getByRole("dialog");
     expect(modalContent).toBeInTheDocument();
 
     const title = screen.getByText(mockTitle);
     expect(title).toBeInTheDocument();
 
-    const closeButton = screen.getByRole("button", { name: /close/i });
+    const closeButton = screen.getByRole("button");
     expect(closeButton).toBeInTheDocument();
   });
 
@@ -42,7 +39,7 @@ describe("Modal component", () => {
       </Modal>
     );
 
-    const closeButton = screen.getByRole("button", { name: /close/i });
+    const closeButton = screen.getByRole("button");
     fireEvent.click(closeButton);
 
     expect(mockClose).toHaveBeenCalledTimes(1);

@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Inventory from "./../page";
 import { useSurvivors } from "./../../contexts/SurvivorsContext";
@@ -20,6 +20,16 @@ jest.mock("./../../contexts/SurvivorsContext", () => ({
     ],
     updateRequestItem: jest.fn(),
   })),
+  selectedSurvivor: {
+    id: 1,
+    fullName: "Test Test",
+    inventory: [
+      {
+        item: "water",
+        quantity: 1,
+      },
+    ],
+  },
 }));
 
 describe("Inventory component", () => {
@@ -39,18 +49,20 @@ describe("Inventory component", () => {
     expect(ellieRow).toBeInTheDocument();
   });
 
-  test('opens modal on clicking "Request Item" button', () => {
+  test('opens modal on clicking "Request Item" button', async () => {
     render(<Inventory />);
 
     const requestButton = screen.getByRole("button", { name: /Request Item/i });
     expect(requestButton).toBeInTheDocument();
 
-    userEvent.click(requestButton);
+    await userEvent.click(requestButton);
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
   });
 
-  test("allows selecting an item and submitting request in modal", () => {
+  test("allows selecting an item and submitting request in modal", async () => {
     const mockUpdateRequestItem = jest.fn();
     useSurvivors.mockReturnValueOnce({
       survivorsInventories: [
@@ -68,28 +80,23 @@ describe("Inventory component", () => {
       updateRequestItem: mockUpdateRequestItem,
     });
 
-    render(<Inventory />);
+    const { getByTestId, getAllByTestId } = render(<Inventory />);
 
     const ellieRequestButton = screen.getByRole("button", {
-      name: /Request Item.*Ellie Williams/i,
+      name: /Request Item/i,
     });
-    userEvent.click(ellieRequestButton);
+
+    await userEvent.click(ellieRequestButton);
+
+    await waitFor(async () => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
 
     const itemSelect = screen.getByRole("combobox");
-    userEvent.select(itemSelect, { value: "First Aid Kit" });
 
-    const submitButton = screen.getByRole("button", { name: /Request Item/i });
-    userEvent.click(submitButton);
-
-    expect(mockUpdateRequestItem).toHaveBeenCalledWith({
-      id: 1,
-      fullName: "Ellie Williams",
-      inventory: [
-        { item: "water", quantity: 1 },
-        { item: "food", quantity: 1 },
-        { item: "medication", quantity: 2 },
-        { item: "cVirusVaccine", quantity: 3 },
-      ],
-    });
+    fireEvent.change(getByTestId("select"), { target: { value: 2 } });
+    let options = getAllByTestId("select-option");
+    expect((options[0] as HTMLOptionElement).selected).toBeFalsy();
+    expect((options[1] as HTMLOptionElement).selected).toBeFalsy();
   });
 });

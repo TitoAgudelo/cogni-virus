@@ -35,7 +35,7 @@ describe("Card component", () => {
 
     const negativeProps = {
       ...mockCardProps,
-      value: "-5",
+      value: "5",
       variation: "negative",
     };
     render(<Card {...negativeProps} />);

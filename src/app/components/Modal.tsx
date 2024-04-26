@@ -19,7 +19,10 @@ const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-auto bg-gray-900 bg-opacity-50 flex justify-center items-center">
+    <div
+      role="dialog"
+      className="fixed inset-0 z-50 overflow-auto bg-gray-900 bg-opacity-50 flex justify-center items-center"
+    >
       <div className="relative bg-white w-full max-w-md p-6 rounded-lg">
         <div className="flex flex-row justify-between items-center mb-6">
           <div className="flex flex-col">
@@ -30,10 +33,9 @@ const Modal: React.FC<ModalProps> = ({
               </p>
             )}
           </div>
-          <X
-            onClick={onClose}
-            className="text-gray-700 hover:text-gray-900 cursor-pointer"
-          />
+          <button onClick={onClose}>
+            <X className="text-gray-700 hover:text-gray-900 cursor-pointer" />
+          </button>
         </div>
         {/* Modal content */}
         <div>{children}</div>

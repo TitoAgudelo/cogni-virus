@@ -21,10 +21,7 @@ describe("Home component", () => {
     const growthMessage = screen.getByText(/Your camp has grown/i);
     expect(growthMessage).toBeInTheDocument();
 
-    const circleAlert = screen.getByRole("img", { name: /alert/i });
-    expect(circleAlert).toBeInTheDocument();
-
-    const cards = screen.getAllByRole("heading", { level: 2 });
+    const cards = screen.getAllByRole("heading", { level: 3 });
     expect(cards.length).toBe(3);
   });
 

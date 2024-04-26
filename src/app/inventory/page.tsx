@@ -181,60 +181,61 @@ export default function Inventory() {
           </div>
         </div>
       </div>
-      {selectedSurvivor && (
-        <Modal
-          isOpen={isModalOpen}
-          title="Request Item"
-          subTitle={"From " + selectedSurvivor.fullName}
-          onClose={closeModal}
-        >
-          <div className="flex flex-col">
-            <form onSubmit={submitRequestItem}>
-              <div className="flex flex-col w-full mb-6">
-                <label
-                  htmlFor="status"
-                  className="text-gray-header-item text-xs"
-                >
-                  Choose Item
-                </label>
-                <select
-                  id="item"
-                  name="item"
-                  value={formData.item}
-                  onChange={handleChange}
-                  className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-950 focus:border-indigo-950 text-gray-500 h-10"
-                >
-                  <option value="">Select</option>
-                  {selectedSurvivor.inventory.map((inventory) => {
-                    return (
-                      inventory.quantity > 0 && (
-                        <option value={inventory.item}>
-                          {inventory.item} - {inventory.quantity}
-                        </option>
-                      )
-                    );
-                  })}
-                </select>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="w-1/2 mr-2 border border-gray-border bg-white hover:bg-gray-header text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-gray-500 focus:ring-opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="w-1/2 bg-indigo-alt hover:bg-indigo-950 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                >
-                  Request Item
-                </button>
-              </div>
-            </form>
-          </div>
-        </Modal>
-      )}
+      <Modal
+        isOpen={isModalOpen}
+        title="Request Item"
+        subTitle={"From " + selectedSurvivor?.fullName}
+        onClose={closeModal}
+      >
+        <div className="flex flex-col">
+          <form onSubmit={submitRequestItem}>
+            <div className="flex flex-col w-full mb-6">
+              <label htmlFor="status" className="text-gray-header-item text-xs">
+                Choose Item
+              </label>
+              <select
+                id="item"
+                name="item"
+                data-testid="select"
+                value={formData.item}
+                onChange={handleChange}
+                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-950 focus:border-indigo-950 text-gray-500 h-10"
+              >
+                <option value="">Select</option>
+                {selectedSurvivor?.inventory.map((inventory) => {
+                  return (
+                    inventory.quantity > 0 && (
+                      <option
+                        value={inventory.item}
+                        data-testid="select-option"
+                        key={"select-" + inventory.item}
+                      >
+                        {inventory.item} - {inventory.quantity}
+                      </option>
+                    )
+                  );
+                })}
+              </select>
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="w-1/2 mr-2 border border-gray-border bg-white hover:bg-gray-header text-gray-900 font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-gray-500 focus:ring-opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                data-testid="submit"
+                className="w-1/2 bg-indigo-alt hover:bg-indigo-950 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              >
+                Request Item
+              </button>
+            </div>
+          </form>
+        </div>
+      </Modal>
     </section>
   );
 }

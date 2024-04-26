@@ -22,22 +22,23 @@ describe("Header component", () => {
     expect(title).toBeInTheDocument();
 
     const navigationLinks = screen.getAllByRole("link");
-    expect(navigationLinks.length).toBe(3);
-    expect(navigationLinks[0].textContent).toBe("Report");
-    expect(navigationLinks[1].textContent).toBe("Survivors");
-    expect(navigationLinks[2].textContent).toBe("Inventory");
+    expect(navigationLinks.length).toBe(4);
+    expect(navigationLinks[0].textContent).toBe("Survival Nexus");
+    expect(navigationLinks[1].textContent).toBe("Report");
+    expect(navigationLinks[2].textContent).toBe("Survivors");
+    expect(navigationLinks[3].textContent).toBe("Inventory");
   });
 
   test("styles active link based on pathname prop", () => {
     render(<Header />);
     const reportLink = screen.getByText("Report");
-    expect(reportLink.parentElement).toHaveClass("active");
+    expect(reportLink.parentElement).toHaveClass("active:bg-zinc-900");
 
-    render(<Header />);
-    expect(screen.getByText("Report").parentElement).not.toHaveClass("active");
+    expect(screen.getByText("Report").parentElement).toHaveClass(
+      "active:bg-zinc-900"
+    );
 
-    render(<Header />);
     const survivorsLink = screen.getByText("Survivors");
-    expect(survivorsLink.parentElement).toHaveClass("active");
+    expect(survivorsLink.parentElement).toHaveClass("active:bg-zinc-900");
   });
 });

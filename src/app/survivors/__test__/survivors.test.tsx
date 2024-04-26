@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Survivors from "./../page";
 import { useSurvivors } from "./../../contexts/SurvivorsContext";
@@ -48,7 +48,7 @@ describe("Survivors component", () => {
     expect(healthyStatus).toBeInTheDocument();
   });
 
-  test('opens modal on clicking "Add Survivor" button', () => {
+  test('opens modal on clicking "Add Survivor" button', async () => {
     render(<Survivors />);
 
     const addSurvivorButton = screen.getByRole("button", {
@@ -56,8 +56,10 @@ describe("Survivors component", () => {
     });
     expect(addSurvivorButton).toBeInTheDocument();
 
-    userEvent.click(addSurvivorButton);
+    await userEvent.click(addSurvivorButton);
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
   });
 });

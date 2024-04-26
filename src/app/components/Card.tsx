@@ -16,7 +16,7 @@ const Card = ({ name, average, days, value, variation }: CardType) => {
       <div className="pt-4 px-3 pb-5">
         <p className="text-base text-indigo-950 font-semibold mb-4">{name}</p>
         <div className="flex flex-row items-center">
-          <p className="text-3xl font-semibold text-indigo-950">{average}</p>
+          <h3 className="text-3xl font-semibold text-indigo-950">{average}</h3>
           {value && (
             <div
               className={
@@ -31,8 +31,7 @@ const Card = ({ name, average, days, value, variation }: CardType) => {
                   (isPositive ? " text-green-400" : " text-rose-500")
                 }
               >
-                {isPositive ? "+" : "-"}
-                {value}%
+                {`${isPositive ? "+" : "-"}${value}%`}
               </p>
             </div>
           )}

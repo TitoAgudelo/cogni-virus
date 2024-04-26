@@ -12,7 +12,10 @@ import { Survivor, Gender, Infected, SurvivorsInventories } from "../dataTypes";
 interface SurvivorsContextType {
   survivors: Survivor[];
   addSurvivor: (survivor: Survivor) => void;
-  updateRequestItem: (inventory: SurvivorsInventories) => void;
+  updateRequestItem: (
+    inventory: SurvivorsInventories,
+    itemName: string
+  ) => void;
   numberOfHealthySurvivors: number;
   numberOfInfectedSurvivors: number;
   averageResourceAllocation: {
@@ -148,12 +151,26 @@ export const SurvivorsProvider: React.FC<{ children: ReactNode }> = ({
     setSurvivorsInventories(updatedInventories);
   };
 
-  const updateRequestItem = (inventory: SurvivorsInventories) => {
-    const updatedInventories = survivorsInventories.map((item) =>
-      item.id === inventory.id ? inventory : item
+  const updateRequestItem = (
+    inventory: SurvivorsInventories,
+    itemName: string
+  ) => {
+    const updatedSurvivors = survivors.map((survivor) =>
+      survivor.id === inventory.id
+        ? {
+            ...survivor,
+            resources: {
+              ...survivor.resources,
+              [itemName as keyof typeof survivor.resources]:
+                survivor.resources[
+                  itemName as keyof typeof survivor.resources
+                ] - 1,
+            },
+          }
+        : { ...survivor }
     );
 
-    setSurvivorsInventories(updatedInventories);
+    updateSurvivorsInventories(updatedSurvivors);
   };
 
   const numberOfHealthySurvivors = survivors.filter(

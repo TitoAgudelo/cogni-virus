@@ -66,18 +66,9 @@ export default function Inventory() {
   const submitRequestItem = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (selectedSurvivor && formData.item) {
-      const currentSurvivor = selectedSurvivor;
-      currentSurvivor.inventory.map((item) => {
-        if (item.item === formData.item) {
-          return {
-            ...item,
-            quantity: item.quantity - 1,
-          };
-        }
-        return item;
-      });
-      updateRequestItem(currentSurvivor);
+      updateRequestItem(selectedSurvivor, formData.item);
     }
+    closeModal();
   };
 
   const handleChange = (
